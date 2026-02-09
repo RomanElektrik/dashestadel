@@ -291,7 +291,7 @@ def main():
         kpi_display = kpi.copy()
         kpi_display["Конв. Лид→Квал %"] = (100 * kpi_display["quals"] / kpi_display["leads"].replace(0, pd.NA)).round(1)
         kpi_display["Конв. Квал→Сделка %"] = (100 * kpi_display["sdelki"] / kpi_display["quals"].replace(0, pd.NA)).round(1)
-        st.dataframe(kpi_display, use_container_width=True, hide_index=True)
+        st.dataframe(kpi_display, width="stretch", hide_index=True)
     else:
         row = kpi.iloc[0]
         leads = int(row["leads"] or 0)
@@ -362,7 +362,7 @@ def main():
                 fig_funnel.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(30,41,59,0.5)", font=dict(color="#F1F5F9"),
                     xaxis=dict(gridcolor="#334155", fixedrange=True), yaxis=dict(gridcolor="#334155", fixedrange=True), legend=dict(bgcolor="rgba(30,41,59,0.8)"),
                     margin=dict(t=30, b=50), height=CHART_HEIGHT, dragmode=False, uirevision="funnel")
-                st.plotly_chart(fig_funnel, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_funnel, width="stretch", config=PLOTLY_CONFIG)
             else:
                 f_row = funnel.iloc[0]
                 f_leads = int(f_row["leads"] or 0)
@@ -376,7 +376,7 @@ def main():
                 colors = ["#3B82F6", "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#14B8A6"]
                 fig_funnel = go.Figure(go.Funnel(y=stages, x=values, textinfo="value+percent initial", marker={"color": colors, "line": {"color": "#334155", "width": 1}}))
                 fig_funnel.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(30,41,59,0.5)", font=dict(color="#F1F5F9", size=11), margin=dict(t=10, b=10, l=10, r=10), height=CHART_HEIGHT, dragmode=False, uirevision="funnel2")
-                st.plotly_chart(fig_funnel, use_container_width=True, config=PLOTLY_CONFIG)
+                st.plotly_chart(fig_funnel, width="stretch", config=PLOTLY_CONFIG)
                 if not compare_mode and leads > 0 and quals > 0:
                     st.caption(f"Лид → Квал: **{round(100 * quals / leads, 1)}%** · Квал → Сделка: **{round(100 * sdelki / quals, 1)}%**")
         else:
@@ -402,7 +402,7 @@ def main():
             fig.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(30,41,59,0.5)", font=dict(color="#F1F5F9"),
                 xaxis=dict(gridcolor="#334155", fixedrange=True), yaxis=dict(gridcolor="#334155", fixedrange=True),
                 legend=dict(bgcolor="rgba(30,41,59,0.8)"), margin=dict(t=50, b=20), hovermode="x unified", height=CHART_HEIGHT, dragmode=False, uirevision="daily")
-            st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG)
         else:
             fig = go.Figure()
             fig.add_trace(go.Scatter(name="Лиды", x=daily["date_str"], y=daily["leads"], mode="lines+markers", line=dict(color="#3B82F6", width=3), marker=dict(size=6)))
@@ -414,7 +414,7 @@ def main():
                 yaxis=dict(gridcolor="#334155", showspikes=False, showgrid=True, fixedrange=True),
                 legend=dict(orientation="h", yanchor="bottom", y=1.02, bgcolor="rgba(30,41,59,0.8)"),
                 margin=dict(t=50, b=20, l=20, r=20), hovermode="x unified", height=CHART_HEIGHT, dragmode=False, uirevision="daily2")
-            st.plotly_chart(fig, use_container_width=True, config=PLOTLY_CONFIG)
+            st.plotly_chart(fig, width="stretch", config=PLOTLY_CONFIG)
     else:
         st.info("Нет данных по дням.")
 
@@ -432,7 +432,7 @@ def main():
             managers_display = managers[["№", "broker_name", "leads", "quals", "sdelki", "conv_percent"]].copy()
             managers_display.columns = ["№", "Брокер", "Лиды", "Квалы", "Сделки", "Конв. %"]
             
-            st.dataframe(managers_display, use_container_width=True, hide_index=True, height=400)
+            st.dataframe(managers_display, width="stretch", hide_index=True, height=400)
         else:
             st.info("Нет данных по менеджерам за этот период.")
     except Exception as e:
@@ -452,8 +452,8 @@ def main():
         df_stage["percent"] = (df_stage["cnt"] / total * 100).round(1) if total > 0 else 0
         fig_stage = go.Figure(go.Funnel(y=df_stage["stage"], x=df_stage["cnt"], textinfo="value+percent initial", marker={"color": "#3B82F6", "line": {"color": "#334155", "width": 1}}))
         fig_stage.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(30,41,59,0.5)", font=dict(color="#F1F5F9", size=11), margin=dict(t=10, b=10, l=10, r=10), height=CHART_HEIGHT, dragmode=False, uirevision="stages")
-        st.plotly_chart(fig_stage, use_container_width=True, config=PLOTLY_CONFIG)
-        st.dataframe(df_stage, use_container_width=True, hide_index=True, height=280)
+        st.plotly_chart(fig_stage, width="stretch", config=PLOTLY_CONFIG)
+        st.dataframe(df_stage, width="stretch", hide_index=True, height=280)
     else:
         st.info("Нет данных по этапам за период.")
 
@@ -472,8 +472,8 @@ def main():
         fig_rej.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(30,41,59,0.5)", font=dict(color="#F1F5F9"),
             xaxis_tickangle=-35, xaxis=dict(gridcolor="#334155", fixedrange=True), yaxis=dict(gridcolor="#334155", fixedrange=True),
             margin=dict(t=30, b=70, l=20, r=20), height=CHART_HEIGHT, showlegend=False, dragmode=False, uirevision="reasons")
-        st.plotly_chart(fig_rej, use_container_width=True, config=PLOTLY_CONFIG)
-        st.dataframe(df_rej, use_container_width=True, hide_index=True, height=280)
+        st.plotly_chart(fig_rej, width="stretch", config=PLOTLY_CONFIG)
+        st.dataframe(df_rej, width="stretch", hide_index=True, height=280)
     else:
         st.info("Нет данных по причинам отказа за период.")
     
@@ -490,7 +490,7 @@ def main():
             try:
                 df_region = _cached_by_region(date_from_str, date_to_str)
                 if not df_region.empty:
-                    st.dataframe(df_region, use_container_width=True, hide_index=True)
+                    st.dataframe(df_region, width="stretch", hide_index=True)
                     fig_r = px.bar(
                         df_region.head(15),
                         x="region",
@@ -509,7 +509,7 @@ def main():
                         legend=dict(bgcolor="rgba(30,41,59,0.8)"),
                         dragmode=False, uirevision="tab_r"
                     )
-                    st.plotly_chart(fig_r, use_container_width=True, config=PLOTLY_CONFIG)
+                    st.plotly_chart(fig_r, width="stretch", config=PLOTLY_CONFIG)
                 else:
                     st.info("Нет данных по регионам.")
             except Exception as e:
@@ -524,7 +524,7 @@ def main():
             try:
                 df_utm = _cached_by_utm(date_from_str, date_to_str, region_key=region_key, region_list=region_list)
                 if not df_utm.empty:
-                    st.dataframe(df_utm, use_container_width=True, hide_index=True)
+                    st.dataframe(df_utm, width="stretch", hide_index=True)
                     df_utm_top = df_utm.head(12).copy()
                     df_utm_top["utm"] = df_utm_top["utm_source"] + " / " + df_utm_top["utm_medium"] + " / " + df_utm_top["utm_campaign"]
                     fig_u = px.bar(df_utm_top, x="utm", y=["leads", "quals"], barmode="group", color_discrete_sequence=["#3B82F6", "#10B981"])
@@ -539,7 +539,7 @@ def main():
                         legend=dict(bgcolor="rgba(30,41,59,0.8)"),
                         dragmode=False, uirevision="tab_u"
                     )
-                    st.plotly_chart(fig_u, use_container_width=True, config=PLOTLY_CONFIG)
+                    st.plotly_chart(fig_u, width="stretch", config=PLOTLY_CONFIG)
                 else:
                     st.info("Нет данных по UTM.")
             except Exception as e:
@@ -554,7 +554,7 @@ def main():
             try:
                 df_fn = _cached_by_formname(date_from_str, date_to_str, region_key=region_key, region_list=region_list)
                 if not df_fn.empty:
-                    st.dataframe(df_fn, use_container_width=True, hide_index=True)
+                    st.dataframe(df_fn, width="stretch", hide_index=True)
                     fig_f = px.bar(
                         df_fn.head(15),
                         x="formname",
@@ -573,7 +573,7 @@ def main():
                         legend=dict(bgcolor="rgba(30,41,59,0.8)"),
                         dragmode=False, uirevision="tab_f"
                     )
-                    st.plotly_chart(fig_f, use_container_width=True, config=PLOTLY_CONFIG)
+                    st.plotly_chart(fig_f, width="stretch", config=PLOTLY_CONFIG)
                 else:
                     st.info("Нет данных по formname.")
             except Exception as e:
@@ -598,7 +598,7 @@ def main():
                         "passports": "Паспорт получен",
                         "broni": "Объект забронирован",
                     })
-                    st.dataframe(df_display, use_container_width=True, hide_index=True)
+                    st.dataframe(df_display, width="stretch", hide_index=True)
                     df_chart = df_land.head(12).copy()
                     df_chart["Посадка (коротко)"] = df_chart["landing"].str.replace(r"^https?://", "", regex=True).str[:40]
                     df_chart["Лиды"] = df_chart["leads"]
@@ -628,7 +628,7 @@ def main():
                         dragmode=False,
                         uirevision="tab_landing",
                     )
-                    st.plotly_chart(fig_land, use_container_width=True, config=PLOTLY_CONFIG)
+                    st.plotly_chart(fig_land, width="stretch", config=PLOTLY_CONFIG)
                 else:
                     st.info("Нет данных по посадочным (проверьте наличие utm_referrer/referrer в данных).")
             except Exception as e:
