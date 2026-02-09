@@ -51,6 +51,9 @@ def get_engine():
         return None
     if not url.startswith("postgresql"):
         url = url.replace("postgres://", "postgresql://", 1)
+    # Pooler Supabase слушает на 6543, не 5432 — подменяем, если в секрете остался старый порт
+    if "pooler.supabase.com" in url and ":5432/" in url:
+        url = url.replace(":5432/", ":6543/", 1)
     # Важно: pooler + ssl могут быть медленными при создании коннекта.
     # Делаем быстрый фейл при проблемах сети + выставляем таймаут запросов.
     # NullPool не кэширует соединения — pool_pre_ping не нужен и может мешать
