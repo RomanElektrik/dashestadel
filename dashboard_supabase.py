@@ -130,6 +130,7 @@ try:
         rejection_reasons,
         ensure_cache_table,
         cache_is_empty,
+        get_responsible_id_to_name_map,
     )
 except Exception as _e_data:
     _DATA_IMPORT_ERROR = _e_data
@@ -2651,8 +2652,10 @@ def _run_dashboard():
         st.warning("Данные временно недоступны")
     try:
         if not managers.empty:
-            # Подстановка имён из update_supabase_responsibles.sql, если в БД ещё «ID 123»
-            id_to_name = _get_responsible_id_to_name_map()
+            # Имена из For dash; если пусто — из update_supabase_responsibles.sql (локально)
+            id_to_name = get_responsible_id_to_name_map(get_engine())
+            if not id_to_name:
+                id_to_name = _get_responsible_id_to_name_map()
             if id_to_name and "broker_id" in managers.columns:
                 def _broker_display_name(row):
                     name = row.get("broker_name") or ""
