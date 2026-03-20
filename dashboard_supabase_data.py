@@ -318,6 +318,42 @@ def run_sql(engine, sql: str, params=None) -> pd.DataFrame:
     raise last_err
 
 
+def get_responsible_id_to_name_map(engine) -> dict:
+    """Возвращает словарь {responsible_user_id: responsible_name} из For dash.
+
+    engine — обычно результат get_engine() (dict с connect_kwargs и run_sql).
+    Если передан SQLAlchemy Engine с методом connect(), используется text() и conn.execute().
+    """
+    if engine is None:
+        return {}
+    sql = """
+        SELECT DISTINCT responsible_user_id, responsible_name
+        FROM public."For dash"
+        WHERE responsible_user_id IS NOT NULL
+          AND responsible_name IS NOT NULL
+          AND TRIM(responsible_name) != ''
+        ORDER BY responsible_name
+    """
+    sql = sql.strip()
+    try:
+        if hasattr(engine, "connect") and callable(getattr(engine, "connect", None)):
+            from sqlalchemy import text as sa_text
+
+            with engine.connect() as conn:
+                result = conn.execute(sa_text(sql))
+                return {row[0]: row[1] for row in result}
+    except Exception:
+        pass
+    try:
+        df = run_sql(engine, sql)
+        if df is None or df.empty:
+            return {}
+        c0, c1 = df.columns[0], df.columns[1]
+        return {row[c0]: row[c1] for _, row in df.iterrows()}
+    except Exception:
+        return {}
+
+
 def _candidates_cte_sql():
     """Кандидаты = лиды у которых хоть одно событие попало в период."""
     cols = [
