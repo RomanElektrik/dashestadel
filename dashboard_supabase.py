@@ -4,6 +4,10 @@
 Подключение: переменная окружения SUPABASE_DB_URL (Connection string из Supabase → Database).
 Запуск: streamlit run dashboard_supabase.py
 """
+import streamlit as st
+
+st.set_page_config(page_title="Эстадель Аналитика", layout="wide")
+
 import sys
 
 print(f"Python version: {sys.version}", flush=True)
@@ -13,23 +17,6 @@ import re
 import time
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-try:
-    import streamlit as st
-except Exception as _e_st:
-    print(f"Streamlit import failed: {_e_st}", flush=True)
-    raise
-
-try:
-    st.set_page_config(
-        page_title="Эстадель — Аналитика",
-        page_icon=None,
-        layout="wide",
-        initial_sidebar_state="expanded",
-    )
-except Exception as _e_cfg:
-    # Повторный вызов или ранняя инициализация — не валим импорт
-    print(f"set_page_config skipped: {_e_cfg}", flush=True)
 
 _PLOTLY_STACK_ERROR = None
 try:
@@ -122,7 +109,6 @@ try:
     from dashboard_supabase_data import (
         get_engine,
         run_sql,
-        get_responsible_id_to_name_map,
         kpi_period,
         kpi_extended,
         kpi_by_region,
@@ -148,6 +134,23 @@ try:
 except Exception as _e_data:
     _DATA_IMPORT_ERROR = _e_data
     print(f"dashboard_supabase_data import failed: {_e_data}", flush=True)
+
+
+def _get_responsible_id_to_name_map():
+    """Имена брокеров из update_supabase_responsibles.sql (локально рядом с дашбордом). Без импорта из data-модуля."""
+    sql_file = Path(__file__).resolve().parent / "update_supabase_responsibles.sql"
+    if not sql_file.exists():
+        return {}
+    try:
+        text_sql = sql_file.read_text(encoding="utf-8")
+    except Exception:
+        return {}
+    pattern = re.compile(
+        r"to_jsonb\('((?:[^']|'')*)'::text\)[^;]+responsible_user_id\s*=\s*(\d+)",
+        re.IGNORECASE,
+    )
+    return {int(m.group(2)): m.group(1).replace("''", "'") for m in pattern.finditer(text_sql)}
+
 
 # Стиль: Glassmorphism + Dark Neomorphism, Syne/Space Grotesk, курсоры, ховеры, тултипы графиков
 try:
@@ -2649,7 +2652,7 @@ def _run_dashboard():
     try:
         if not managers.empty:
             # Подстановка имён из update_supabase_responsibles.sql, если в БД ещё «ID 123»
-            id_to_name = get_responsible_id_to_name_map()
+            id_to_name = _get_responsible_id_to_name_map()
             if id_to_name and "broker_id" in managers.columns:
                 def _broker_display_name(row):
                     name = row.get("broker_name") or ""
